@@ -38,7 +38,7 @@ class App:
         self.score = 0
         self.word_stack = [] # 単語スタックをクリア
         self._add_new_word_to_stack(initial=True) # 最初の単語を一番下に配置
-        self.word_spawn_timer = self.WORD_SPAWN_INTERVAL # ★タイマーを初期化
+        self.word_spawn_timer = 30 # ★2ワード目が0.5秒後に降ってくるように初期化
         self.game_state = self.STATE_PLAYING
 
     def _add_new_word_to_stack(self, initial=False):
