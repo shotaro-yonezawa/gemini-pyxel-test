@@ -11,7 +11,8 @@ class App:
     WORD_HEIGHT = 8  # Pyxelのフォントの高さ
     DOG_WIDTH = 16
     DOG_HEIGHT = 16
-    STACK_BOTTOM_Y = 120 # ★一番下の単語のY座標 (画面中央に調整)
+    STACK_BOTTOM_Y = 120 # 一番下の単語のY座標 (画面中央に調整)
+    WORD_SPAWN_INTERVAL = 120 # 2秒ごとに新しいワードを生成 (60FPS想定)
 
     def __init__(self):
         pyxel.init(256, 256, title="DOG FOOD TYPING", quit_key=pyxel.KEY_NONE)
@@ -28,6 +29,7 @@ class App:
         self.word_stack = [] # 画面上の単語を管理するリスト
         self.dog_x = 64 # ★犬のX座標を画面の1/4の位置に固定
         self.dog_anim_frame = 0 
+        self.word_spawn_timer = 0 # ワード生成タイマーを再導入 
         
         pyxel.run(self.update, self.draw)
 
@@ -36,6 +38,7 @@ class App:
         self.score = 0
         self.word_stack = [] # 単語スタックをクリア
         self._add_new_word_to_stack(initial=True) # 最初の単語を一番下に配置
+        self.word_spawn_timer = self.WORD_SPAWN_INTERVAL # ★タイマーを初期化
         self.game_state = self.STATE_PLAYING
 
     def _add_new_word_to_stack(self, initial=False):
@@ -91,6 +94,12 @@ class App:
         if pyxel.btnp(pyxel.KEY_ESCAPE):
             self.game_state = self.STATE_TITLE
             return
+
+        # ★ワード生成タイマーの更新
+        self.word_spawn_timer -= 1
+        if self.word_spawn_timer <= 0:
+            self._add_new_word_to_stack()
+            self.word_spawn_timer = self.WORD_SPAWN_INTERVAL
 
         # 各単語の位置を更新
         for i, word_data in enumerate(self.word_stack):
