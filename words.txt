@@ -3,3 +3,5 @@ world
 python
 pyxel
 gemini
+coding
+typing

@@ -53,7 +53,25 @@ dog_open = [
 pyxel.images[0].set(0, 0, dog_close)
 pyxel.images[0].set(16, 0, dog_open)
 
-# 3. リソースを保存
+# 3. サウンドを作成
+# サウンド0: 成功音 (ピコッ)
+pyxel.sounds[0].set(
+    "c3",
+    "p",
+    "7",
+    "n",
+    5
+)
+# サウンド1: 失敗音 (ブッ)
+pyxel.sounds[1].set(
+    "c1",
+    "t",
+    "7",
+    "n",
+    5
+)
+
+# 4. リソースを保存
 pyxel.save("assets.pyxres")
 
 print("assets.pyxresを作成しました。")

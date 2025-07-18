@@ -29,7 +29,9 @@ class App:
         self.word_x = 0
         self.word_y = 0
         self.speed = 0
-        
+        self.difficulty_increase_factor = 0.0005 # 難易度上昇の割合
+        self.current_difficulty_speed = 0 # 現在の難易度による速度増加量
+
         # --- 犬の関連設定 ---
         self.dog_x = 10
         self.dog_anim_frame = 0 
@@ -39,6 +41,7 @@ class App:
     def start_new_game(self):
         """新しいゲームを開始するために変数をリセット"""
         self.score = 0
+        self.current_difficulty_speed = 0 # ゲーム開始時に難易度をリセット
         self.new_word()
         self.game_state = self.STATE_PLAYING
 
@@ -51,7 +54,8 @@ class App:
         
         self.word_x = 256
         self.word_y = random.randint(10, 240 - 16)
-        self.speed = random.uniform(0.5, 1.5)
+        # 難易度による速度増加量を加算
+        self.speed = random.uniform(0.5, 1.5) + self.current_difficulty_speed
 
     def update(self):
         """ゲームの状態を更新する"""
@@ -71,6 +75,9 @@ class App:
 
     def update_playing(self):
         """ゲーム中の更新処理"""
+        # 難易度を時間経過で上昇させる
+        self.current_difficulty_speed += self.difficulty_increase_factor
+
         if pyxel.btnp(pyxel.KEY_ESCAPE):
             self.game_state = self.STATE_TITLE
             return
@@ -86,6 +93,8 @@ class App:
                 typed_char = chr(ord('a') + key - pyxel.KEY_A)
                 
                 if self.current_word and typed_char == self.current_word[0]:
+                    # ★正解音
+                    pyxel.play(0, 0) 
                     self.current_word = self.current_word[1:]
                     self.score += 1
                     self.word_x += pyxel.FONT_WIDTH 
@@ -96,6 +105,9 @@ class App:
                         self.score += 5
                         self.new_word()
                         break
+                else:
+                    # ★不正解音
+                    pyxel.play(0, 1)
 
     def draw(self):
         """画面を描画する"""
