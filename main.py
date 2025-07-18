@@ -8,9 +8,12 @@ class App:
     STATE_GAMEOVER = 2
 
     def __init__(self):
-        # ESCキーでゲームが終了しないように設定
-        pyxel.init(256, 256, title="Typing Game", quit_key=pyxel.KEY_NONE)
+        # ★タイトルを「DOG FOOD TYPING」に変更
+        pyxel.init(256, 256, title="DOG FOOD TYPING", quit_key=pyxel.KEY_NONE)
         
+        # リソースファイルを読み込む
+        pyxel.load("assets.pyxres")
+
         # 単語リストを読み込む
         try:
             with open("words.txt", "r") as f:
@@ -26,8 +29,10 @@ class App:
         self.word_x = 0
         self.word_y = 0
         self.speed = 0
+        
+        # --- 犬の関連設定 ---
         self.dog_x = 10
-        self.dog_char = ">"
+        self.dog_anim_frame = 0 
         
         pyxel.run(self.update, self.draw)
 
@@ -45,13 +50,15 @@ class App:
             self.current_word = random.choice(self.words)
         
         self.word_x = 256
-        self.word_y = random.randint(10, 240)
+        self.word_y = random.randint(10, 240 - 16)
         self.speed = random.uniform(0.5, 1.5)
 
     def update(self):
         """ゲームの状態を更新する"""
+        if self.dog_anim_frame > 0:
+            self.dog_anim_frame -= 1
+
         if self.game_state == self.STATE_TITLE:
-            # タイトル画面でエンターキーが押されたらゲーム開始
             if pyxel.btnp(pyxel.KEY_RETURN):
                 self.start_new_game()
         
@@ -59,22 +66,18 @@ class App:
             self.update_playing()
 
         elif self.game_state == self.STATE_GAMEOVER:
-            # ゲームオーバー画面でエンターキーが押されたらタイトルへ
             if pyxel.btnp(pyxel.KEY_RETURN):
                 self.game_state = self.STATE_TITLE
 
     def update_playing(self):
         """ゲーム中の更新処理"""
-        # ESCキーでタイトルに戻る
         if pyxel.btnp(pyxel.KEY_ESCAPE):
             self.game_state = self.STATE_TITLE
             return
 
-        # 単語を動かす
         self.word_x -= self.speed
         
-        # 犬に単語が到達したらゲームオーバー
-        if self.word_x < self.dog_x + 8:
+        if self.word_x < self.dog_x + 16:
             self.game_state = self.STATE_GAMEOVER
 
         # キー入力処理
@@ -87,17 +90,21 @@ class App:
                     self.score += 1
                     self.word_x += pyxel.FONT_WIDTH 
                     
+                    self.dog_anim_frame = 5
+
                     if not self.current_word:
-                        self.score += 5 # ボーナス
+                        self.score += 5
                         self.new_word()
                         break
 
     def draw(self):
         """画面を描画する"""
-        pyxel.cls(1) # 明るい青色の背景
+        pyxel.cls(1)
 
         if self.game_state == self.STATE_TITLE:
-            pyxel.text(100, 120, "PRESS ENTER", pyxel.frame_count % 16)
+            # ★タイトル画面の描画
+            pyxel.text(88, 110, "DOG FOOD TYPING", 7)
+            pyxel.text(100, 130, "PRESS ENTER", pyxel.frame_count % 16)
         
         elif self.game_state == self.STATE_PLAYING:
             self.draw_playing()
@@ -109,15 +116,15 @@ class App:
 
     def draw_playing(self):
         """ゲーム中の描画処理"""
-        # 現在の単語を描画
-        pyxel.text(self.word_x, self.word_y, self.current_word, 7)
+        pyxel.text(self.word_x, self.word_y + 6, self.current_word, 7)
         
-        # 犬を描画
-        pyxel.text(self.dog_x, self.word_y, self.dog_char, 8)
+        dog_sprite_u = 0
+        if self.dog_anim_frame > 0:
+            dog_sprite_u = 16
         
-        # スコアを描画
+        pyxel.blt(self.dog_x, self.word_y, 0, dog_sprite_u, 0, 16, 16, 0)
+        
         pyxel.text(5, 5, f"Score: {self.score}", 7)
-        # 操作説明
         pyxel.text(170, 5, "Press ESC to quit", 7)
 
 App()
