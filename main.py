@@ -11,7 +11,7 @@ class App:
     WORD_HEIGHT = 8  # Pyxelのフォントの高さ
     DOG_WIDTH = 16
     DOG_HEIGHT = 16
-    STACK_BOTTOM_Y = 200 # 一番下の単語のY座標
+    STACK_BOTTOM_Y = 120 # ★一番下の単語のY座標 (画面中央に調整)
 
     def __init__(self):
         pyxel.init(256, 256, title="DOG FOOD TYPING", quit_key=pyxel.KEY_NONE)
