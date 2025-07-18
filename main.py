@@ -12,7 +12,8 @@ class App:
     DOG_WIDTH = 16
     DOG_HEIGHT = 16
     STACK_BOTTOM_Y = 120 # 一番下の単語のY座標 (画面中央に調整)
-    WORD_SPAWN_INTERVAL = 120 # 2秒ごとに新しいワードを生成 (60FPS想定)
+    WORD_SPAWN_INTERVAL = 60 # 1秒ごとに新しいワードを生成 (60FPS想定)
+    WORD_GAP_HEIGHT = 8 # ★単語間の隙間の高さ (1文字分)
 
     def __init__(self):
         pyxel.init(256, 256, title="DOG FOOD TYPING", quit_key=pyxel.KEY_NONE)
@@ -53,7 +54,7 @@ class App:
         text_width = len(new_word_text) * pyxel.FONT_WIDTH
         word_x = (pyxel.width - text_width) // 2 
         
-        fall_speed = random.uniform(0.5, 1.5) # 落下速度
+        fall_speed = random.uniform(1.5, 2.5) # 落下速度
 
         if initial:
             # 最初の単語は指定された一番下のY座標に配置
@@ -107,9 +108,10 @@ class App:
 
             # 落下中の単語の縦移動
             if word_data["is_falling"]:
-                # 落下目標Y座標 (スタックの高さに応じて計算)
-                # iはスタックの底からの位置を示す
-                target_y = self.STACK_BOTTOM_Y - i * self.WORD_HEIGHT
+                # 落下目標Y座標 (スタックの底からの位置に応じて計算)
+                # i=0 が一番下の単語、i=1 がその上の単語...
+                # ★単語の高さ + 隙間の高さを考慮
+                target_y = self.STACK_BOTTOM_Y - i * (self.WORD_HEIGHT + self.WORD_GAP_HEIGHT)
                 if word_data["y"] < target_y:
                     word_data["y"] += 1 # 落下速度
                 else:
@@ -117,7 +119,7 @@ class App:
                     word_data["is_falling"] = False # 落下停止
 
         # ゲームオーバー条件: スタックされている単語が3つ以上
-        if len(self.word_stack) >= 3:
+        if len(self.word_stack) >= 3 and not self.word_stack[2]["is_falling"]: # ★条件を修正
             self.game_state = self.STATE_GAMEOVER
             return
 
